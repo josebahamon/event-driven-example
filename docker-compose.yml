@@ -1,0 +1,51 @@
+services:
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data  # Volumen para persistencia de datos
+
+  producer:
+    build:
+      context: ./producer  # Apunta al subdirectorio del servicio producer
+      dockerfile: Dockerfile
+    command: python app.py
+    depends_on:
+      - redis
+    volumes:
+      - ./producer:/app  # Monta el directorio local para desarrollo
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+
+  notification:
+    build:
+      context: ./notification  # Apunta al subdirectorio del servicio notification
+      dockerfile: Dockerfile
+    command: python app.py
+    depends_on:
+      - redis
+    volumes:
+      - ./notification:/app  # Monta el directorio local para desarrollo
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+
+  logistics:
+    build:
+      context: ./logistics  # Apunta al subdirectorio del servicio logistics
+      dockerfile: Dockerfile
+    command: python app.py
+    depends_on:
+      - redis
+    volumes:
+      - ./logistics:/app  # Monta el directorio local para desarrollo
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+
+volumes:
+  redis_data:  # Define el volumen para Redis
+
